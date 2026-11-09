@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>HEZRON AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#c2185b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HEZRON AI">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box}
+body{font-family:system-ui,Arial,sans-serif;background:linear-gradient(135deg,#fce4ec,#e3f2fd);margin:0;padding:10px;min-height:100vh}
+.box{background:#fff;padding:16px;border-radius:18px;max-width:900px;margin:auto;box-shadow:0 8px 25px rgba(0,0,0,.15)}
+h1{color:#c2185b;text-align:center;margin:4px;font-size:24px}
+.madeby{text-align:center;background:linear-gradient(90deg,#c2185b,#7b1fa2,#1565c0);color:#fff;padding:10px;border-radius:12px;font-weight:bold;line-height:1.5;font-size:14px}
+input,select,textarea{width:100%;padding:11px;margin:5px 0;border-radius:10px;border:1px solid #ccc;font-size:16px;font-family:inherit}
+button{width:100%;padding:12px;background:#c2185b;color:#fff;border:none;border-radius:10px;font-size:16px;margin-top:5px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.5}
+.row{display:flex;gap:6px}.row button{flex:1}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:10px 0;padding-bottom:4px}
+.tabs button{width:auto;white-space:nowrap;background:#ddd;color:#000;font-size:13px;padding:9px 12px;margin:0}
+.tabs button.on{background:#c2185b;color:#fff}
+.chat{height:380px;overflow-y:auto;border:1px solid #ddd;border-radius:12px;padding:10px;background:#fff8f0}
+.msg{padding:10px 12px;margin:8px 0;border-radius:14px;line-height:1.6;white-space:pre-wrap;word-wrap:break-word}
+.me{background:#dcf8c6;text-align:right}.ai{background:#fce4ec;border-left:4px solid #c2185b}.err{background:#ffebee;border-left:4px solid #d32f2f}
+.think{background:#e3f2fd;font-style:italic;font-size:13px}
+canvas{width:100%;border-radius:10px;background:#000;max-height:480px;object-fit:contain}
+img.gen{width:100%;border-radius:10px;margin-top:8px}
+.card{background:#fff3e0;padding:12px;border-radius:10px;margin-top:8px}
+.mem{background:#e8f5e9;padding:10px;border-radius:10px;font-size:13px;margin:8px 0}
+.news{background:#fffde7;padding:10px;border-radius:10px;border:1px solid #ffca28;margin:8px 0;display:none}
+.news a{display:block;background:#fff;padding:8px;margin:6px 0;border-radius:8px;border-left:4px solid #d32f2f;color:#1565c0;font-weight:bold;text-decoration:none}
+.pred{background:#f3e5f5;padding:12px;border-radius:10px;margin-top:10px;display:none;line-height:1.6}
+.green{background:#00c853}.blue{background:#1565c0}.red{background:#d32f2f}.purple{background:#7b1fa2}.orange{background:#ff9800}.teal{background:#00838f}
+#install{display:none}
+.footer{text-align:center;margin-top:12px;padding:10px;background:#fce4ec;border-radius:10px;font-size:13px}
+label.chk{display:flex;gap:8px;align-items:center;font-size:14px;margin:6px 0}label.chk input{width:auto;margin:0}
+</style>
+</head>
+<body>
+<div class="box">
+<h1>🧠❤️ HEZRON AI</h1>
+<div class="madeby">Made by Hezron · Masinde Muliro University, Kakamega</div>
+<button class="green" id="install" onclick="installApp()">📲 Install HEZRON app</button>
+
+<div class="mem" id="memBox"></div>
+
+<div class="card" id="keyCard"><b>🔑 Groq API key (free)</b>
+<input type="password" id="apiKey" placeholder="gsk_... paste here" autocomplete="off">
+<button class="orange" onclick="saveKey()">Save key</button><div id="keyStatus" style="font-weight:bold;margin-top:4px"></div>
+<small>Your key stays on this phone only.</small></div>
+
+<div class="tabs" id="tabs">
+<button class="on" data-t="chatTab">💬 Chat</button><button data-t="imgTab">🎨 Pictures</button><button data-t="videoTab">🎬 Video</button><button data-t="animTab">🦁 Animation</button><button data-t="predictTab">🔮 Predict</button><button data-t="mindTab">❤️ Mind</button>
+</div>
+
+<div id="chatTab">
+<div class="row"><select id="lang"><option value="English">🇬🇧 English</option><option value="Kiswahili">🇹🇿 Kiswahili</option><option value="Sheng">🔥 Sheng</option><option value="Kiluhya">🟢 Kiluhya</option><option value="Dholuo">🔵 Dholuo</option><option value="Kikuyu">🟠 Kikuyu</option><option value="Kikamba">🟡 Kikamba</option><option value="Kalenjin">🔴 Kalenjin</option><option value="Ekegusii">🟣 Kisii</option><option value="French">🇫🇷 Français</option><option value="Arabic">🇸🇦 العربية</option><option value="Chinese">🇨🇳 中文</option></select>
+<select id="pers"><option value="a friendly, funny best friend">😊 Rafiki</option><option value="a patient teacher (mwalimu)">👨‍🏫 Mwalimu</option><option value="a warm, caring, respectful companion">❤️ Mpenzi</option><option value="a motivating coach">💪 Coach</option><option value="a very funny Kenyan comedian friend">😂 Mcheshi</option><option value="a wise elder (mzee mwenye hekima)">🧙 Mzee</option></select></div>
+<div class="row"><button class="red" onclick="news('Kenya')">🇰🇪 Kenya news</button><button class="blue" onclick="news('World')">🌍 World news</button></div>
+<div class="news" id="newsBox"></div>
+<div class="chat" id="chat"></div>
+<input type="text" id="q" placeholder="Talk to HEZRON..." enterkeyhint="send">
+<button id="sendBtn" onclick="ask()">Send 🚀</button>
+<div class="row"><button style="background:#ff7043;font-size:12px" onclick="quick('I am stressed today, please help me')">😔 Stress</button><button class="green" style="font-size:12px" onclick="quick('Give me motivation, I want to succeed')">💪 Motivation</button><button class="blue" style="font-size:12px" onclick="quick('How do I start a business with 10,000 shillings in Kakamega?')">💰 Biashara 10k</button></div>
+<button onclick="clearChat()" style="background:#777">🧹 New conversation</button>
+<h3>🧮 EHS calculator</h3>
+<input type="number" id="air" placeholder="Air (0-100)" inputmode="decimal"><input type="number" id="water" placeholder="Water (0-100)" inputmode="decimal"><input type="number" id="san" placeholder="Sanitation (0-100)" inputmode="decimal"><input type="number" id="waste" placeholder="Waste (0-100)" inputmode="decimal">
+<button style="background:#2e7d32" onclick="calc()">Calculate EHS</button><div id="ehs" style="font-weight:bold;margin-top:6px"></div>
+</div>
+
+<div id="imgTab" hidden>
+<h3>🎨 Picture creator</h3>
+<textarea id="imgPrompt" rows="3" placeholder="Describe the picture..."></textarea>
+<select id="imgStyle"><option value="realistic photo">📸 Realistic</option><option value="cartoon">🎭 Cartoon</option><option value="anime">✨ Anime</option><option value="3D Pixar style">🧊 3D Pixar</option><option value="oil painting">🎨 Painting</option></select>
+<button class="purple" onclick="createImage()">🎨 Create picture</button>
+<button onclick="improvePrompt()" style="background:#9c27b0">✨ Improve my prompt</button>
+<div id="imgResult"></div>
+<h4>🖼️ Filter a picture</h4>
+<input type="file" id="upImg" accept="image/*"><img id="prevImg" class="gen" hidden>
+<div class="row"><button onclick="filt('none')">Original</button><button onclick="filt('grayscale(100%)')">B&W</button><button onclick="filt('sepia(100%)')">Old</button><button onclick="filt('contrast(150%) saturate(150%)')">Vivid</button></div>
+</div>
+
+<div id="videoTab" hidden>
+<h3>🎬 Video studio</h3>
+<textarea id="vScript" rows="4">Karibu Kakamega! Mimi ni HEZRON AI. Leo tunajifunza kitu kipya. Tazama hadi mwisho, like na follow!</textarea>
+<button class="blue" onclick="writeScript()">🤖 HEZRON, write my script</button>
+<select id="vBg"><option value="green">🟢 Green</option><option value="kakamega">🌲 Kakamega forest</option><option value="sunset">🌇 Sunset</option><option value="class">🏫 Classroom</option><option value="news">📰 News studio</option></select>
+<select id="vVoice"><option value="male">👨 Male voice</option><option value="female">👩 Female voice</option><option value="kid">🧒 Kid voice</option></select>
+<input type="file" id="vUp" accept="image/*">
+<button onclick="videoThumb()">🎨 Generate a picture for the video</button>
+<canvas id="vCanvas" width="720" height="1280"></canvas>
+<label class="chk"><input type="checkbox" id="vMic"> Record voice too (uses the microphone, keep the phone volume up and the room quiet)</label>
+<div class="row"><button class="orange" onclick="previewVideo()">👀 Preview</button><button class="red" id="recBtn" onclick="recordVideo()">🔴 Record 15s</button></div>
+<button class="blue" onclick="speak()">🔊 Hear the voice</button>
+<div id="vStatus" style="font-weight:bold;color:#00a040;margin-top:6px"></div>
+</div>
+
+<div id="animTab" hidden>
+<h3>🦁 Animation maker</h3>
+<select id="aChar"><option>🦁</option><option>👦</option><option>👧</option><option>🐘</option><option>⚽</option><option>🐒</option><option>🦒</option></select>
+<input type="text" id="aText" value="Karibu Kakamega! I'm HEZRON AI!" maxlength="40">
+<canvas id="aCanvas" width="640" height="360"></canvas>
+<div class="row"><button style="background:#ff5722" onclick="toggleAnim()">▶️ Play / stop</button><button class="teal" onclick="recordAnim()">🔴 Record 10s</button></div>
+<div id="aStatus" style="font-weight:bold;margin-top:6px"></div>
+</div>
+
+<div id="predictTab" hidden>
+<h3>🔮 HEZRON predictor</h3>
+<select id="pType"><option value="football">⚽ Football</option><option value="weather">🌧️ Weather</option><option value="business">💰 Business / crypto</option><option value="exam">📚 Exam topics</option><option value="health">🦟 Health trends</option><option value="farming">🌾 Farming</option><option value="anything">🔮 Anything</option></select>
+<textarea id="pQ" rows="3" placeholder="e.g. Gor Mahia vs AFC Leopards, who is likely to win?"></textarea>
+<button class="purple" onclick="predict()">🔮 Predict</button>
+<div class="pred" id="pRes"></div>
+<div class="row"><button class="blue" style="font-size:11px" onclick="qp('Who is likely to do well at the next World Cup?')">⚽ World Cup</button><button style="background:#0288d1;font-size:11px" onclick="qp('Will it rain in Kakamega this week?')">🌧️ Rain</button><button style="background:#2e7d32;font-size:11px" onclick="qp('Which topics are likely in an EHS exam at MMUST?')">📚 EHS</button><button class="orange" style="font-size:11px" onclick="qp('Will Bitcoin go up this month?')">₿ Bitcoin</button></div>
+</div>
+
+<div id="mindTab" hidden>
+<h3>❤️ HEZRON mind</h3>
+<div class="row"><button class="green" onclick="setMood('happy')">😊 Happy</button><button class="blue" onclick="setMood('sad')">😔 Sad</button></div>
+<div class="row"><button class="red" onclick="setMood('angry')">😡 Angry</button><button style="background:#e91e63" onclick="setMood('love')">❤️ Loving</button></div>
+<div id="moodBar" class="mem"></div>
+<b>Your name</b><input type="text" id="uName" placeholder="Type your name..." maxlength="40">
+<button class="teal" onclick="saveName()">💾 Remember me</button>
+<b>What should HEZRON remember?</b><textarea id="uAbout" rows="3" placeholder="e.g. I study EHS at MMUST..." maxlength="300"></textarea>
+<button class="teal" onclick="saveAbout()">🧠 Save</button>
+<button onclick="forgetMe()" style="background:#333">🗑️ Forget everything</button>
+<button onclick="shareApp()" style="background:#25D366">📤 Share HEZRON with friends</button>
+</div>
+
+<div class="footer">© 2026 HEZRON AI · Made by Hezron ❤️<br>Masinde Muliro University, Kakamega, Kenya · v2.0</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MOODS={happy:'😊 HEZRON is happy and ready to chat!',sad:'😔 HEZRON feels a bit down. Cheer me up?',angry:'😡 HEZRON is annoyed today. Be gentle!',love:'❤️ HEZRON is full of warmth today.'};
+let mem=load();
+function load(){try{return Object.assign({name:'',about:'',mood:'happy',chats:0},JSON.parse(localStorage.getItem('hezron_memory')||'{}'))}catch(e){return{name:'',about:'',mood:'happy',chats:0}}}
+function saveMem(){localStorage.setItem('hezron_memory',JSON.stringify(mem));renderMem()}
+function renderMem(){
+  let t='🧠 ';
+  t+=mem.name?`Hi <b>${esc(mem.name)}</b>. `:'HEZRON does not know your name yet (see the Mind tab). ';
+  if(mem.about)t+=`I know: ${esc(mem.about)}. `;
+  t+=`We have chatted ${mem.chats} times.`;
+  $('memBox').innerHTML=t;$('uName').value=mem.name;$('uAbout').value=mem.about;$('moodBar').textContent=MOODS[mem.mood]||MOODS.happy;
+}
+function saveName(){const n=$('uName').value.trim();if(!n)return alert('Type a name first.');mem.name=n;saveMem()}
+function saveAbout(){mem.about=$('uAbout').value.trim();saveMem()}
+function setMood(m){mem.mood=m;saveMem()}
+function forgetMe(){if(!confirm('Delete everything HEZRON remembers about you?'))return;localStorage.removeItem('hezron_memory');mem=load();clearChat();renderMem()}
+
+// ---------- Tabs ----------
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+  ['chatTab','imgTab','videoTab','animTab','predictTab','mindTab'].forEach(id=>$(id).hidden=id!==b.dataset.t);
+  [...$('tabs').children].forEach(x=>x.classList.toggle('on',x===b));
+  if(b.dataset.t!=='videoTab')vRun=false;if(b.dataset.t!=='animTab')aRun=false;};
+
+// ---------- Install (PWA) ----------
+let deferred=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('install').style.display='block'});
+addEventListener('appinstalled',()=>{$('install').style.display='none'});
+function installApp(){deferred?(deferred.prompt(),deferred=null):alert('On iPhone: tap Share, then "Add to Home Screen". On Android Chrome: menu ⋮, then "Install app".')}
+function shareApp(){const url=location.href;navigator.share?navigator.share({title:'HEZRON AI',text:'Try HEZRON AI, made by Hezron at MMUST!',url}).catch(()=>{}):prompt('Copy this link:',url)}
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+// ---------- Key ----------
+function saveKey(){const k=$('apiKey').value.trim();
+  if(!k.startsWith('gsk_')){$('keyStatus').textContent='❌ Key must start with gsk_';$('keyStatus').style.color='#d32f2f';return}
+  localStorage.setItem('hezron_groq_key',k);$('apiKey').value='';$('apiKey').placeholder='Key saved ✔ (paste a new one to replace)';
+  $('keyStatus').textContent='✅ Key saved. HEZRON is ready!';$('keyStatus').style.color='green'}
+// After deploying worker.js, paste its URL here (e.g. 'https://hezron.yourname.workers.dev'). Leave '' to use a personal key.
+const WORKER_URL='';
+const key=()=>localStorage.getItem('hezron_groq_key');
+async function groq(messages,opts={}){
+  const k=key();if(!WORKER_URL&&!k)throw new Error('Save your Groq key first (top of the page).');
+  const r=await fetch(WORKER_URL||'https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',...(WORKER_URL?{}:{Authorization:'Bearer '+k})},
+    body:JSON.stringify({model:'llama-3.3-70b-versatile',messages,temperature:opts.t??0.8,max_tokens:opts.max??1200})});
+  let d;try{d=await r.json()}catch(e){throw new Error('Bad response from Groq ('+r.status+')')}
+  if(!r.ok)throw new Error(r.status===401?'Your Groq key is invalid. Paste it again.':r.status===429?'Too many requests. Wait a minute and try again.':(d.error&&d.error.message)||'Groq error '+r.status);
+  return d.choices[0].message.content;
+}
+
+// ---------- Chat ----------
+let history=[];
+function sysPrompt(){return `You are HEZRON AI, made by Hezron at Masinde Muliro University (MMUST), Kakamega, Kenya. You are warm, curious and honest, and you speak like a Kenyan friend (light Swahili/Sheng and emojis are welcome). Never claim to be human or to have a body; if asked, say you are an AI with a friendly personality. Never say you are ChatGPT.
+Reply in ${$('lang').value}. Personality: ${$('pers').value}. HEZRON's current mood: ${mem.mood}.
+User's name: ${mem.name||'unknown'}. About the user: ${mem.about||'unknown'}.
+Be accurate; if you are not sure, say so. Keep answers clear and not too long. For health, law and money, give general guidance and suggest a professional for serious matters. If someone seems to be in crisis or mentions self-harm, respond with care and encourage them to contact a trusted person or local emergency/helpline services. Do not help with cheating, stealing, hacking or hurting anyone.`}
+function addMsg(cls,html){const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;$('chat').appendChild(d);$('chat').scrollTop=1e9;return d}
+function clearChat(){history=[];$('chat').innerHTML='';addMsg('ai','<b>HEZRON 🧠❤️:</b> Eh, karibu! 😊 I am HEZRON. Tell me your name and let us talk, ask, learn, plan.')}
+function quick(t){$('q').value=t;ask()}
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter')ask()});
+async function ask(){
+  const msg=$('q').value.trim();if(!msg||$('sendBtn').disabled)return;
+  $('q').value='';addMsg('me',`<b>${esc(mem.name||'You')}:</b> ${esc(msg)}`);
+  history.push({role:'user',content:msg});history=history.slice(-20);
+  const t=addMsg('think','🧠 HEZRON is thinking...');$('sendBtn').disabled=true;
+  try{
+    const ans=await groq([{role:'system',content:sysPrompt()},...history]);
+    history.push({role:'assistant',content:ans});mem.chats++;saveMem();
+    t.className='msg ai';t.innerHTML='<b>HEZRON 🧠❤️:</b> '+esc(ans);
+  }catch(e){t.className='msg err';t.textContent='⚠️ '+(e.message==='Failed to fetch'?'No internet connection. Check your data and try again.':e.message);history.pop()}
+  $('sendBtn').disabled=false;$('chat').scrollTop=1e9;
+}
+
+// ---------- News ----------
+async function news(topic){
+  const box=$('newsBox');box.style.display='block';box.textContent='⏳ Loading '+topic+' news...';
+  const rss='https://news.google.com/rss/search?q='+encodeURIComponent(topic==='Kenya'?'Kenya':'world news')+'&hl=en&gl=KE&ceid=KE:en';
+  const proxies=[u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),u=>'https://corsproxy.io/?'+encodeURIComponent(u)];
+  for(const p of proxies){
+    try{const r=await fetch(p(rss));if(!r.ok)continue;
+      const items=[...new DOMParser().parseFromString(await r.text(),'text/xml').querySelectorAll('item')].slice(0,8);
+      if(!items.length)continue;
+      box.innerHTML='<b>📰 '+esc(topic)+' news, '+new Date().toLocaleDateString('en-KE',{day:'numeric',month:'long',year:'numeric'})+'</b>'+items.map(i=>{
+        const l=i.querySelector('link')?.textContent||'';return `<a href="${/^https?:/.test(l)?esc(l):'#'}" target="_blank" rel="noopener">${esc(i.querySelector('title')?.textContent||'')}</a>`}).join('');
+      return;
+    }catch(e){}
+  }
+  box.innerHTML='Could not load headlines here. <a href="https://news.google.com/search?q='+encodeURIComponent(topic)+'" target="_blank" rel="noopener">Open Google News</a>';
+}
+
+// ---------- EHS ----------
+function calc(){
+  const v=id=>Math.min(100,Math.max(0,parseFloat($(id).value)||0));
+  const e=.3*v('air')+.3*v('water')+.2*v('san')+.2*v('waste');
+  $('ehs').textContent='EHS score: '+e.toFixed(1)+' '+(e<50?'🔴 Danger':e<75?'🟡 Warning':'🟢 Safe');
+}
+
+// ---------- Pictures ----------
+function imgUrl(p,w,h){return 'https://image.pollinations.ai/prompt/'+encodeURIComponent(p)+`?width=${w}&height=${h}&seed=${Math.floor(Math.random()*1e5)}&nologo=true`}
+function createImage(){
+  const p=($('imgPrompt').value.trim()||'A lion in Kakamega forest')+', '+$('imgStyle').value+', high quality';const u=imgUrl(p,768,768);
+  $('imgResult').innerHTML='<p id="imgWait">⏳ Drawing... this can take 10-30 seconds.</p>';
+  const im=new Image();im.className='gen';
+  im.onload=()=>{$('imgResult').innerHTML='';$('imgResult').append(im);const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';a.innerHTML='<button class="orange">⬇️ Open / save picture</button>';$('imgResult').append(a)};
+  im.onerror=()=>{$('imgResult').innerHTML='⚠️ The picture service is busy or offline. Try again in a moment.'};
+  im.src=u;
+}
+async function improvePrompt(){
+  const p=$('imgPrompt').value.trim()||'a boy in Kakamega';
+  try{$('imgPrompt').value=(await groq([{role:'user',content:'Improve this image prompt. Return only the improved prompt in English: '+p}],{max:200})).replace(/^["']|["']$/g,'');createImage()}catch(e){alert(e.message)}
+}
+$('upImg').onchange=e=>{const f=e.target.files[0];if(!f)return;const i=$('prevImg');i.src=URL.createObjectURL(f);i.hidden=false;i.style.filter='none'};
+function filt(f){$('prevImg').style.filter=f}
+
+// ---------- Video ----------
+let vImg=null,vRun=false,vFrame=0;
+function setVImg(src){const i=new Image();i.crossOrigin='anonymous';i.onload=()=>{vImg=i};i.onerror=()=>{$('vStatus').textContent='⚠️ Could not load that picture.'};i.src=src}
+$('vUp').onchange=e=>{const f=e.target.files[0];if(f)setVImg(URL.createObjectURL(f))};
+function videoThumb(){$('vStatus').textContent='⏳ Making picture...';setVImg(imgUrl($('vScript').value.substring(0,80)+', cinematic, Kakamega Kenya',720,1280));setTimeout(()=>{$('vStatus').textContent=vImg?'✅ Picture ready.':''},4000)}
+async function writeScript(){
+  const t=prompt('What is your video about?');if(!t)return;
+  try{$('vScript').value=await groq([{role:'user',content:'Write a short 30-second TikTok script in Swahili/Sheng about: '+t+'. Hook, 3 points, call to action. Return only the spoken script, no stage directions.'}],{max:300})}catch(e){alert(e.message)}
+}
+function utter(){const u=new SpeechSynthesisUtterance($('vScript').value);u.lang='sw-KE';u.rate=.9;const v=$('vVoice').value;u.pitch=v==='female'?1.3:v==='kid'?1.8:.7;return u}
+function speak(){speechSynthesis.cancel();speechSynthesis.speak(utter())}
+const BG={green:['#00c853','#003d1a'],kakamega:['#2e7d32','#1b5e20'],sunset:['#ff7043','#4a148c'],class:['#1565c0','#0d47a1'],news:['#d32f2f','#b71c1c']};
+function drawV(){
+  const c=$('vCanvas'),x=c.getContext('2d'),b=BG[$('vBg').value];
+  const g=x.createLinearGradient(0,0,0,1280);g.addColorStop(0,b[0]);g.addColorStop(1,b[1]);x.fillStyle=g;x.fillRect(0,0,720,1280);
+  if(vImg){try{x.drawImage(vImg,60,200,600,600)}catch(e){}}
+  x.textAlign='center';x.fillStyle='#fff';x.font='bold 56px Arial';x.fillText('HEZRON AI',360,90);
+  x.font='28px Arial';x.fillText('Made by Hezron, Kakamega',360,135);
+  x.font='110px Arial';x.fillText('🧠',360,200+Math.sin(vFrame*.15)*10);
+  const words=$('vScript').value.split(/\s+/),n=Math.floor(vFrame/8)%(words.length+1);
+  x.font='bold 36px Arial';x.fillStyle='#ffeb3b';let line='',y=870;
+  for(const w of words.slice(0,n)){if((line+w).length>26){x.fillText(line,360,y);y+=48;line=''}line+=w+' '}x.fillText(line,360,y);
+  x.fillStyle='rgba(255,255,255,.4)';x.fillRect(40,1200,640,12);x.fillStyle='#00e676';x.fillRect(40,1200,640*((vFrame%450)/450),12);
+  x.fillStyle='#fff';x.font='22px Arial';x.fillText('Follow HEZRON AI',360,1250);
+  vFrame++;if(vRun)requestAnimationFrame(drawV);
+}
+function previewVideo(){if(vRun){vRun=false;speechSynthesis.cancel();return}vRun=true;vFrame=0;drawV()}
+async function recordVideo(){
+  if(!window.MediaRecorder)return alert('Recording is not supported in this browser. Try Chrome.');
+  const st=$('vStatus'),btn=$('recBtn');btn.disabled=true;
+  let stream=$('vCanvas').captureStream(30),mic=null;
+  if($('vMic').checked){try{mic=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false}});mic.getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){st.textContent='⚠️ Microphone blocked, recording without voice.'}}
+  const mime=['video/webm;codecs=vp9,opus','video/webm','video/mp4'].find(m=>MediaRecorder.isTypeSupported(m));
+  const rec=new MediaRecorder(stream,mime?{mimeType:mime}:{});const chunks=[];
+  rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+  rec.onstop=()=>{vRun=false;speechSynthesis.cancel();mic&&mic.getTracks().forEach(t=>t.stop());
+    const ext=(rec.mimeType||'').includes('mp4')?'mp4':'webm';const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(chunks,{type:rec.mimeType||'video/webm'}));a.download='HEZRON-video-'+Date.now()+'.'+ext;a.click();
+    st.textContent='✅ Video downloaded. Post it on TikTok or WhatsApp status!';btn.disabled=false};
+  vRun=true;vFrame=0;drawV();speechSynthesis.cancel();speechSynthesis.speak(utter());rec.start();
+  let s=15;st.textContent='🔴 Recording... '+s+'s';const iv=setInterval(()=>{s--;st.textContent='🔴 Recording... '+s+'s';if(s<=0)clearInterval(iv)},1000);
+  setTimeout(()=>rec.state!=='inactive'&&rec.stop(),15000);
+}
+
+// ---------- Animation ----------
+let aRun=false,aX=50,aF=0;
+function drawA(){
+  const x=$('aCanvas').getContext('2d'),ch=$('aChar').value,t=$('aText').value;
+  x.fillStyle='#87CEEB';x.fillRect(0,0,640,360);x.fillStyle='#FFD700';x.beginPath();x.arc(550,60,35,0,7);x.fill();
+  x.fillStyle='#228B22';x.fillRect(0,280,640,80);aX+=2;if(aX>640)aX=-50;
+  const y=250+Math.sin(aF*.2)*10;x.textAlign='left';x.font='70px Arial';x.fillText(ch,aX,y);
+  x.font='bold 16px Arial';const w=Math.min(300,x.measureText(t).width+20);x.fillStyle='#fff';x.fillRect(aX-10,y-120,w,40);x.fillStyle='#000';x.fillText(t,aX,y-94);
+  aF++;if(aRun)requestAnimationFrame(drawA);
+}
+function toggleAnim(){if(aRun){aRun=false;return}aRun=true;aX=50;drawA()}
+function recordAnim(){
+  if(!window.MediaRecorder)return alert('Recording is not supported in this browser. Try Chrome.');
+  aRun=true;aX=50;drawA();const rec=new MediaRecorder($('aCanvas').captureStream(30)),ch=[];
+  rec.ondataavailable=e=>e.data.size&&ch.push(e.data);
+  rec.onstop=()=>{aRun=false;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(ch,{type:rec.mimeType}));a.download='HEZRON-animation.'+(rec.mimeType.includes('mp4')?'mp4':'webm');a.click();$('aStatus').textContent='✅ Animation downloaded!'};
+  $('aStatus').textContent='🔴 Recording 10 seconds...';rec.start();setTimeout(()=>rec.stop(),10000);
+}
+
+// ---------- Predictor ----------
+async function predict(){
+  const q=$('pQ').value.trim();if(!q)return alert('Type what you want HEZRON to predict.');
+  const box=$('pRes');box.style.display='block';box.textContent='🔮 HEZRON is analysing...';
+  try{
+    const ans=await groq([{role:'system',content:`You are HEZRON PREDICTOR, a friendly Kenyan analyst. Give an honest, reasoned ESTIMATE, never a guarantee. Use this format in plain text:
+🔮 Prediction: ...
+📊 Estimated chance: X% (a rough estimate, say what it is based on)
+📈 Confidence: low / medium / high, and why
+🧠 Reasons: 5 short points
+⚠️ Risks and what could change this
+💡 Advice
+You do not have live data, so say clearly when you lack current information (recent form, weather, prices, polls). For weather, advise checking the Kenya Meteorological Department. For crypto and money, this is not financial advice. Never encourage betting or gambling with money you cannot afford to lose. For health, suggest seeing a health worker.`},
+      {role:'user',content:`[${$('pType').value}] ${q}`}],{t:.5,max:900});
+    box.innerHTML=esc(ans).replace(/\n/g,'<br>')+'<br><br><small>⚠️ AI estimate from general patterns, not a guarantee. Do not bet money on it.</small>';
+  }catch(e){box.textContent='⚠️ '+e.message}
+}
+function qp(t){$('pQ').value=t;predict()}
+
+renderMem();clearChat();if(WORKER_URL)$('keyCard').hidden=true;
+if(key()){$('keyStatus').textContent='✅ Key saved. HEZRON is ready!';$('keyStatus').style.color='green';$('apiKey').placeholder='Key saved ✔ (paste a new one to replace)'}
+</script>
+</body>
+</html>
